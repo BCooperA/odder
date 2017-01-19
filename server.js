@@ -4,13 +4,16 @@ var bodyParser          = require('body-parser');       // "body-parser" package
 var passport            = require('passport');          // "passport" package for authentication handling
 var expressJWT          = require('express-jwt');       // "express" package for json web tokens
 var mongoose            = require('mongoose');          // "mongoose" package for MongoDB
+var helmet              = require('helmet');            // set security-related HTTP headers with "helmet" package
+var expressValidator    = require('express-validator'); // "express-validator" package for validating request body objects
 var express             = require('express');           // "express" package
-var expressValidator    = require('express-validator');
-var mailer              = require('express-mailer');
 var app                 = express();                    // initialize express
 
+// use 'dist' folder if node environment is set to 'development', otherwise use 'src' folder
 (process.env.NODE_ENV === 'development') ? folder_dest = 'dist' : folder_dest = 'src';
-var config = require('./backend/' + folder_dest + '/config/config'); // basic configuration file
+
+// require basic configuration file
+var config = require('./backend/' + folder_dest + '/config/config');
 
 /**
  * **********************************************************************
@@ -55,26 +58,31 @@ var jwt = expressJWT({secret: config.token.secret}).unless({path: [{ url: '/' }]
  *  Configuration
  * **********************************************************************
  */
-// BodyParser for able to manipulate request bodies
-app.use(bodyParser.urlencoded({ extended: true })); //bodyParser configuration
-app.use(bodyParser.json()); // format bodyParser to JSON
+// Parse incoming request bodies in a middleware before your handlers, available under the req.body property.
+app.use(bodyParser.urlencoded({ extended: true })); // returns middleware that only parses urlencoded bodies.
+app.use(bodyParser.json()); // returns middleware that only parses json.
+
+// An express.js middleware for node-validator.
 app.use(expressValidator()); // this line must be immediately after any of the bodyParser middlewares!
 
-// Miscellaneous
-app.use(morgan('dev')); // use morgan to log HTTP requests to the console
-app.use('/static', express.static(__dirname + '/public')); // assigning app-wide cache settings
+/**
+ * **********************************************************************
+ * Security, logging and serving static files
+ * **********************************************************************
+ */
 
-mailer.extend(app, {
-    from: 'no-reply@example.com',
-    host: process.env.MAIL_HOSTNAME, // hostname
-    secureConnection: true, // use SSL
-    port: process.env.MAIL_PORT, // port for secure SMTP
-    transportMethod: 'SMTP', // default is SMTP. Accepts anything that nodemailer accepts
-    auth: {
-        user: process.env.MAIL_USER,
-        pass: process.env.MAIL_PASS
-    }
-});
+// Helmet can help protect your app from some well-known web vulnerabilities by setting HTTP headers appropriately.
+// Helmet is actually just a collection of nine smaller middleware functions that set security-related HTTP headers.
+// referenced at: https://expressjs.com/en/advanced/best-practice-security.html
+app.use(helmet());
+
+// HTTP request logger middleware for node.js
+app.use(morgan('dev'));
+
+// To serve static files such as images, CSS files, and JavaScript files, use the express.static built-in middleware function in Express.
+// Pass the name of the directory that contains the static assets to the express.static middleware function to start serving the files directly.
+// referenced at: https://expressjs.com/en/starter/static-files.html
+app.use('/static', express.static(__dirname + '/public')); // assigning app-wide cache settings
 
 /**
  * *********************************************************************
@@ -84,6 +92,8 @@ mailer.extend(app, {
 var authRoutes  = require('./backend/' + folder_dest +'/routes/auth');
 // initialize passport middleware
 app.use(passport.initialize());
+
+// assign the '/auth/' prefix to authentication routes
 app.use('/auth/', authRoutes);
 
 /**
@@ -109,7 +119,6 @@ var apiRoutes  = [teams, schedule, testRoutes]; // declare all the routes under 
 app.use('/api/' + config.api.version, apiRoutes);
 //app.use('/api/' + config.api.version, [jwt, jwtAuth.sendRefreshedTokenInResponseHeaders], apiRoutes); // USE IN PRODUCTION
 
-
 /**
  * **********************************************************************
  * Custom Error Handlers
@@ -124,11 +133,13 @@ app.use(function (err, req, res, next) {
 });
 
 /**
- * Frontend routes
- *
+ * **********************************************************************
+ * Serve frontend routes
+ * **********************************************************************
  */
+// use this only if you are developing an SPA (single page application)
 app.get('*', function(req, res) {
-    res.sendFile("public/views/index.html", {"root": __dirname}); // load the single view file (angular will handle the page changes on the front-end)
+    res.sendFile("public/views/index.html", {"root": __dirname});
 });
 
 /**
