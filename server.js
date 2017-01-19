@@ -50,7 +50,6 @@ var jwtAuth = require('./backend/' + folder_dest + '/middlewares/token'); // JWT
 // Json Web Tokens for authenticating users and protecting the API
 var jwt = expressJWT({secret: config.token.secret}).unless({path: [{ url: '/' }]});
 
-
 /**
  * *********************************************************************
  *  Configuration
