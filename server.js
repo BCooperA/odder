@@ -9,7 +9,7 @@ var expressValidator    = require('express-validator');
 var mailer              = require('express-mailer');
 var app                 = express();                    // initialize express
 
-(process.env.DEV_MODE == 'dev') ? folder_dest = 'dist' : folder_dest = 'src';
+(process.env.NODE_ENV === 'development') ? folder_dest = 'dist' : folder_dest = 'src';
 var config = require('./backend/' + folder_dest + '/config/config'); // basic configuration file
 
 /**
