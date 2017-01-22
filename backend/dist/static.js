@@ -1,4 +1,4 @@
-var teams = { // object containing all the names and respective abbreviations of 30 teams currently playing in the National Hockey League
+var teams = { // An object containing all the names and respective abbreviations of 30 teams currently playing in the National Hockey League
     'ANA': 'Anaheim Ducks', 'ARI': 'Arizona Coyotes', 'BOS': 'Boston Bruins', 'BUF': 'Buffalo Sabres',
     'CGY': 'Calgrary Flames', 'CAR': 'Carolina Hurricanes', 'CHI': 'Chicago Blackhawks', 'COL': 'Colorado Avalanche',
     'CBJ': 'Columbus Blue Jackets', 'DAL': 'Dallas Stars', 'DET': 'Detroit Red Wings', 'EDM': 'Edmonton Oilers',
