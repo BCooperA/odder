@@ -151,7 +151,5 @@ var port = process.env.PORT || 8080; // set our port
 app.listen(port); // start listening the port
 console.log('Server running on port ' + port); // notify via console that the server has started
 
-// Changed OS from Windows to Linux
-// This is a commit test
 
 
